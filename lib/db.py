@@ -4,6 +4,7 @@ import pandas as pd
 
 
 class Table:
+    name: str
     header: List[str]
     df: pd.DataFrame
     file: str
@@ -11,6 +12,7 @@ class Table:
     def __init__(self, file: str):
         self.df = pd.read_csv(file)
         self.file = file
+        self.name = file.split(".")[0]
         self.header = self.df.columns.tolist()  # get the header of the table
 
     def insert(self, row: dict):
@@ -32,6 +34,7 @@ class Operation:
     operation: str
     condition: Optional[dict] = None
     new_value: Optional[dict] = None
+    executed: bool = False
 
     def __init__(self, table: Table, operation: str, condition: Optional[Union[dict, List[dict]]] = None, new_value: Optional[dict] = None):
         self.table = table
@@ -46,4 +49,5 @@ class Operation:
             return self.table.select(self.condition)
         elif self.operation == "update":
             self.table.update(self.condition, self.new_value)
+        self.executed = True
 
