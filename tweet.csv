@@ -1,0 +1,4 @@
+tweet_id,content,datetime,user_id
+1,Hello, world!,"2024-11-30 10:00:00",101
+2,Learning pandas is fun!,"2024-11-30 10:30:00",102
+3,Just posted a new blog article.,"2024-11-30 11:00:00",103
