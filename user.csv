@@ -1,4 +1,5 @@
-user_id,name,num_following,num_follower,num_tweets
-101,Alice,150,200,25
-102,Bob,120,180,30
-103,Charlie,80,300,50
+user_id,name,num_following,num_follower,num_tweets,num_likes,num_dislikes
+19,Alice,0,1,0,0,0
+1,Bob,1,0,0,1,2
+22,Charlie,0,0,0,0,0
+15,Matthew,0,0,1,0,0

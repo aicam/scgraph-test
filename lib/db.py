@@ -31,23 +31,25 @@ class Table:
 
 class Operation:
     table: Table
-    operation: str
+    operation_type: str
     condition: Optional[dict] = None
     new_value: Optional[dict] = None
     executed: bool = False
 
     def __init__(self, table: Table, operation: str, condition: Optional[Union[dict, List[dict]]] = None, new_value: Optional[dict] = None):
         self.table = table
-        self.operation = operation
+        self.operation_type = operation
         self.condition = condition
+        if condition is None:
+            self.condition = {"k": None, "v": None}
         self.new_value = new_value
 
     def execute(self):
-        if self.operation == "insert":
+        if self.operation_type == "insert":
             self.table.insert(self.new_value)
-        elif self.operation == "select":
+        elif self.operation_type == "select":
             return self.table.select(self.condition)
-        elif self.operation == "update":
+        elif self.operation_type == "update":
             self.table.update(self.condition, self.new_value)
         self.executed = True
 
