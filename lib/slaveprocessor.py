@@ -1,4 +1,5 @@
 import logging
+import random
 import threading
 import queue
 from typing import List
@@ -14,7 +15,7 @@ class Lock:
 
 
 class SlaveProcessor:
-    def __init__(self, table: Table, persistent: bool = False):
+    def __init__(self, table: Table, name: str, persistent: bool = False):
         self.table = table
         self.logger = logging.getLogger(self.__class__.__name__)
         self.hops_queue = queue.Queue()
@@ -25,6 +26,7 @@ class SlaveProcessor:
         self.thread.start()
         self.logger.info(f"Initialized SlaveProcessor for table: {self.table.name} with persistent equal to {persistent}")
         self.persistent = persistent
+        self.name = name
 
     def push_hop(self, hop: List[Operation]):
         """Push a list of hops (transactions) to the queue."""
@@ -35,7 +37,7 @@ class SlaveProcessor:
         while not self.stop_signal.is_set():
             try:
                 hop = self.hops_queue.get(timeout=1)  # Fetch a hop
-                self.logger.info(f"SlaveProcessor for table: {self.table.name} is processing a hop")
+                self.logger.info(f"table: {self.table.name} is processing a hop")
                 if self._process_hop(hop):
                     self._release_locks(hop)  # Release locks if the hop is fully executed
                 else:
@@ -56,7 +58,7 @@ class SlaveProcessor:
                 operation.execute()
                 if self.persistent:
                     self.table.save()
-                self.logger.info(f"SlaveProcessor for table: {self.table.name} processed an operation {operation.operation_type}:{operation.condition}:{operation.new_value}")
+                self.logger.info(f"table: {self.table.name} processed an operation {operation.operation_type}:{operation.condition}:{operation.new_value}:{operation.executed}")
             else:
                 all_operations_complete = False  # Cannot process this operation yet
 
@@ -73,6 +75,7 @@ class SlaveProcessor:
                 ):
                     # Conflict if an exclusive lock exists or if it's a write operation
                     if lock.type == "X" or operation.operation_type != "select":
+                        self.logger.warning(f"table: {self.table.name} cannot acquire lock for operation {operation.operation_type}:{operation.condition}:{operation.new_value}")
                         return False
         return True
 
@@ -82,7 +85,7 @@ class SlaveProcessor:
         new_lock = Lock(table=operation.table.name, type=lock_type, condition=operation.condition)
         with self.lock:
             self.locks.append(new_lock)
-        print(f"Acquired {lock_type} lock on {operation.condition} for table {operation.table.name}")
+        self.logger.info(f" Acquired {lock_type} lock on {operation.condition} for table {operation.table.name}")
 
     def _release_locks(self, hop: List[Operation]):
         """Release all locks associated with a completed hop."""
@@ -97,7 +100,7 @@ class SlaveProcessor:
                         and lock.condition["v"] == operation.condition["v"]
                     )
                 ]
-        print(f"Released locks for hop: {[op.operation_type for op in hop]}")
+        self.logger.info(f"Released locks for hop: {[op.condition for op in hop]} in table {self.table.name}")
 
     def stop(self):
         """Stop the processing thread."""

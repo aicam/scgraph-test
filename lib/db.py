@@ -48,7 +48,7 @@ class Operation:
         if self.operation_type == "insert":
             self.table.insert(self.new_value)
         elif self.operation_type == "select":
-            return self.table.select(self.condition)
+            self.table.select(self.condition)
         elif self.operation_type == "update":
             self.table.update(self.condition, self.new_value)
         self.executed = True
