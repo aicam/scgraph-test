@@ -74,7 +74,7 @@ def generate_T2(tweet: Table, user: Table) -> List[Operation]:
     select_tweet_operation = Operation(
         table=tweet,
         operation="select",
-        condition={"k": "tweet_id", "v": 22},
+        condition={"k": "tweet_id", "v": 2},
         new_value=None
     )
     operations.append(select_tweet_operation)
@@ -145,7 +145,7 @@ def generate_T4(tweet: Table, user: Table) -> List[Operation]:
     select_tweet_operation = Operation(
         table=tweet,
         operation="select",
-        condition={"k": "tweet_id", "v": 58},
+        condition={"k": "tweet_id", "v": 3},
         new_value=None
     )
     operations.append(select_tweet_operation)

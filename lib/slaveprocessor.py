@@ -66,6 +66,9 @@ class SlaveProcessor:
 
     def _can_acquire_lock(self, operation: Operation) -> bool:
         """Check if a lock can be acquired for the given operation."""
+        if operation.condition["k"] is None:
+            return True
+
         with self.lock:
             for lock in self.locks:
                 if (
@@ -81,6 +84,8 @@ class SlaveProcessor:
 
     def _acquire_lock(self, operation: Operation):
         """Acquire a lock for the given operation."""
+        if operation.condition["k"] is None:
+            return
         lock_type = "X" if operation.operation_type != "select" else "S"
         new_lock = Lock(table=operation.table.name, type=lock_type, condition=operation.condition)
         with self.lock:
@@ -100,7 +105,7 @@ class SlaveProcessor:
                         and lock.condition["v"] == operation.condition["v"]
                     )
                 ]
-        self.logger.info(f"Released locks for hop: {[op.condition for op in hop]} in table {self.table.name}")
+        self.logger.info(f"Released locks for hop: {[op.condition for op in hop if op.condition['k'] is not None]} in table {self.table.name}")
 
     def stop(self):
         """Stop the processing thread."""
