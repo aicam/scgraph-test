@@ -25,6 +25,29 @@ class MasterProcessor:
         self.transactions_queue.append(T_chopped)
         self.logger.info(f"Transaction {T_chopped.TID} added to the queue with {len(T_chopped.hops)} hops.")
 
+    def lazy_push_T(self, T: List[Operation]):
+        """Chop a transaction and add it to the queue."""
+        T_chopped = chop_T(T)
+        delay = False
+        for transaction in list(self.transactions_queue):  # Iterate over a copy to modify the original queue
+            if len(T_chopped.hops) != len(transaction.hops):
+                break
+            for i in range(len(transaction.hops)):
+                if len(T_chopped.hops[i]) != len(transaction.hops[i]):
+                    break
+                for j in range(len(transaction.hops[i])):
+                    if T_chopped.hops[i][j].operation_type != transaction.hops[i][j].operation_type:
+                        break
+                    elif T_chopped.hops[i][j].condition != transaction.hops[i][j].condition:
+                        break
+                    else:
+                        delay = True
+                        break
+        if delay:
+            time.sleep(1)
+            self.logger.warning(f"Transaction {T_chopped.TID} delayed.")
+        self.transactions_queue.append(T_chopped)
+
     def start(self):
         """Start processing transactions."""
         self.transaction_thread.start()

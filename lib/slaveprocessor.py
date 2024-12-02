@@ -17,7 +17,7 @@ class Lock:
 class SlaveProcessor:
     def __init__(self, table: Table, name: str, persistent: bool = False):
         self.table = table
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = logging.getLogger(self.__class__.__name__ + " " + name)
         self.hops_queue = queue.Queue()
         self.locks = []  # A list to maintain active locks
         self.lock = threading.Lock()  # Thread lock for synchronizing access to the locks list

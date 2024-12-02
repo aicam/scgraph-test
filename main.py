@@ -51,15 +51,15 @@ if __name__ == "__main__":
     master_processor = MasterProcessor([tweet_table_processor, user_table_processor, follow_table_processor])
     master_processor.start()
 
-    for _ in range(10):
+    for _ in range(200):
         T1 = generate_T1(follow_table, user_table)
         T2 = generate_T2(tweet_table, user_table)
         T3 = generate_T3(tweet_table, user_table)
         T4 = generate_T4(tweet_table, user_table)
         T_err = generate_T_err(follow_table, user_table)
-        master_processor.push_T(T1)
-        master_processor.push_T(T2)
-        master_processor.push_T(T3)
-        master_processor.push_T(T4)
-        master_processor.push_T(T_err)
-    time.sleep(2)
+        master_processor.lazy_push_T(T1)
+        master_processor.lazy_push_T(T2)
+        master_processor.lazy_push_T(T3)
+        master_processor.lazy_push_T(T4)
+        master_processor.lazy_push_T(T_err)
+    time.sleep(4)
