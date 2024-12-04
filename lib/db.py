@@ -26,6 +26,9 @@ class Table:
     def update(self, condition: dict, new_value: dict):
         self.df.loc[self.df[condition["k"]] == condition["v"], new_value["k"]] = new_value["v"]
 
+    def delete(self, condition: dict):
+        self.df = self.df.drop(self.df[self.df[condition["k"]] != condition["v"]].index[0])
+
     def save(self):
         self.df.to_csv(self.file, index=False)
 

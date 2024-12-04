@@ -28,6 +28,9 @@ class MasterProcessor:
     def lazy_push_T(self, T: List[Operation]):
         """Chop a transaction and add it to the queue."""
         T_chopped = chop_T(T)
+        # Start tracking the hops
+        for hop, table_name in zip(T_chopped.hops, T_chopped.hops_table):
+            self.hops_tracking.append((hop, table_name, time.time()))
         delay = False
         for transaction in list(self.transactions_queue):  # Iterate over a copy to modify the original queue
             if len(T_chopped.hops) != len(transaction.hops):
@@ -78,9 +81,6 @@ class MasterProcessor:
                         f"to SlaveProcessor for table {table_name}."
                     )
                     slave.push_hop(hop)
-
-                    # Start tracking the hop
-                    self.hops_tracking.append((hop, table_name, time.time()))
 
                 # Remove the transaction after all its hops have been pushed
                 self.transactions_queue.remove(transaction)
